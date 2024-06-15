@@ -83,6 +83,7 @@ We provide [colab tutorial](demo/MMRotate_Tutorial.ipynb), and other tutorials f
 - [customize dataset](docs/en/tutorials/customize_dataset.md)
 - [customize model](docs/en/tutorials/customize_models.md)
 - [useful tools](docs/en/tutorials/useful_tools.md)
+- [crop rotated box](https://github.com/leimao/Rotated-Rectangle-Crop-OpenCV/blob/master/rotated_rect_crop.py)
 
 
 
