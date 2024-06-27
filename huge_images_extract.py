@@ -71,24 +71,25 @@ def parse_args():
     args = parser.parse_args()
     return args
 
+
 def crop_rotated_boxes(image, bboxes) -> np.ndarray:
     return [crop_rotated_rectangle(image, box) for box in bboxes]
 
 
 def get_cropped_boxes(im_path: str, im, model, args):
     result = inference_detector_by_patches(model, im_path, args.patch_sizes,
-                                            args.patch_steps, args.img_ratios,
-                                            args.merge_iou_thr)
+                                           args.patch_steps, args.img_ratios,
+                                           args.merge_iou_thr)
 
-    if not len(result) or not len(result[0]): return
+    if not len(result) or not len(result[0]):
+        return
 
     # im = cv2.imread(im_path)
-    rbboxes = [ [(int(r[0]), int(r[1])), (int(r[2]), int(r[3])), math.degrees(r[4])] 
-                    for r in result[0] if r[-1] > args.score_thr]
+    rbboxes = [[(int(r[0]), int(r[1])), (int(r[2]), int(r[3])), math.degrees(r[4])]
+               for r in result[0] if r[-1] > args.score_thr]
 
-    
+    return crop_rotated_boxes(im, rbboxes)
 
-    return  crop_rotated_boxes(im, rbboxes)
 
 def save_cropped_patches(im_path, out_dir,  cropped_patches):
     bname = os.path.basename(im_path)
@@ -102,26 +103,28 @@ def save_cropped_patches(im_path, out_dir,  cropped_patches):
         print(e)
     pass
 
+
 def main(args):
     # build the model from a config file and a checkpoint file
     model = init_detector(args.config, args.checkpoint, device=args.device)
     # test a huge image by patches
 
-
     if args.img:
         im_path = args.img
         im = cv2.imread(im_path)
-        cropped_patches = get_cropped_boxes(im_path,im, model, args)
+        cropped_patches = get_cropped_boxes(im_path, im, model, args)
         save_cropped_patches(im_path, cropped_patches)
         return
-    
+
     im_paths = glob.glob(f'{args.dir}/*.*')
 
-    os.makedirs(args.save_dir, exist_ok = True)
-    for i, im_path in enumerate( tqdm( im_paths ) ):
+    os.makedirs(args.save_dir, exist_ok=True)
+    for i, im_path in enumerate(tqdm(im_paths)):
         im = cv2.imread(im_path)
         cropped_patches = get_cropped_boxes(im_path, im, model, args)
-        save_cropped_patches(im_path, args.save_dir,cropped_patches)
+        save_cropped_patches(im_path, args.save_dir, cropped_patches)
+
+
 '''
 python ./demo/huge_images_extract.py --dir ../images  --config './configs/oriented_rcnn/oriented_rcnn_r50_fpn_1x_dota_le90.py' \
 --checkpoint '../epoch_3_050324.pth' \
