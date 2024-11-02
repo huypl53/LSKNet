@@ -12,6 +12,7 @@ python demo/huge_image_demo.py \
 """  # nowq
 
 from argparse import ArgumentParser
+
 from mmdet.apis import init_detector, show_result_pyplot
 
 from mmrotate.apis import inference_detector_by_patches
@@ -19,46 +20,44 @@ from mmrotate.apis import inference_detector_by_patches
 
 def parse_args():
     parser = ArgumentParser()
-    parser.add_argument("imgs", help="Image files", nargs="+", default=[])
-    parser.add_argument("config", help="Config file")
-    parser.add_argument("checkpoint", help="Checkpoint file")
+    parser.add_argument( 'imgs', help='Image files', nargs='+', default=[])
+    parser.add_argument('config', help='Config file')
+    parser.add_argument('checkpoint', help='Checkpoint file')
     parser.add_argument(
-        "--patch_sizes",
+        '--patch_sizes',
         type=int,
-        nargs="+",
+        nargs='+',
         default=[1024],
-        help="The sizes of patches",
-    )
+        help='The sizes of patches')
     parser.add_argument(
-        "--patch_steps",
+        '--patch_steps',
         type=int,
-        nargs="+",
+        nargs='+',
         default=[824],
-        help="The steps between two patches",
-    )
+        help='The steps between two patches')
     parser.add_argument(
-        "--img_ratios",
+        '--img_ratios',
         type=float,
-        nargs="+",
+        nargs='+',
         default=[1.0],
-        help="Image resizing ratios for multi-scale detecting",
-    )
+        help='Image resizing ratios for multi-scale detecting')
     parser.add_argument(
-        "--merge_iou_thr",
+        '--merge_iou_thr',
         type=float,
         default=0.1,
-        help="IoU threshould for merging results",
-    )
-    parser.add_argument("--device", default="cuda:0", help="Device used for inference")
+        help='IoU threshould for merging results')
     parser.add_argument(
-        "--palette",
-        default="dota",
-        choices=["dota", "sar", "hrsc", "hrsc_classwise", "random"],
-        help="Color palette used for visualization",
-    )
+        '--device', default='cuda:0', help='Device used for inference')
     parser.add_argument(
-        "--score-thr", type=float, default=0.3, help="bbox score threshold"
-    )
+        '--palette',
+        default='dota',
+        choices=['dota', 'sar', 'hrsc', 'hrsc_classwise', 'random'],
+        help='Color palette used for visualization')
+    parser.add_argument(
+        '--score-thr', type=float, default=0.3, help='bbox score threshold')
+    parser.add_argument(
+        '--suffix', type=str, default='_result', help='suffix image result')
+
     args = parser.parse_args()
     return args
 
@@ -67,16 +66,12 @@ def main(args):
     # build the model from a config file and a checkpoint file
     model = init_detector(args.config, args.checkpoint, device=args.device)
     # test a huge image by patches
+    suffix_name = args.suffix
     for im_path in args.imgs:
-        print(f"Processing {im_path}")
-        result = inference_detector_by_patches(
-            model,
-            im_path,
-            args.patch_sizes,
-            args.patch_steps,
-            args.img_ratios,
-            args.merge_iou_thr,
-        )
+        print(f'Processing {im_path}')
+        result = inference_detector_by_patches(model, im_path, args.patch_sizes,
+                                            args.patch_steps, args.img_ratios,
+                                            args.merge_iou_thr)
         # show the results
         show_result_pyplot(
             model,
@@ -84,10 +79,9 @@ def main(args):
             result,
             palette=args.palette,
             score_thr=args.score_thr,
-            out_file="_result".join([im_path.rsplit(".", 1)[0], ".jpg"]),
-        )
+            out_file=f'{suffix_name}'.join([ im_path.rsplit('.', 1)[0], '.jpg' ]))
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     args = parse_args()
     main(args)
+
